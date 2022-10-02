@@ -1,17 +1,47 @@
 FROM docker.io/library/ubuntu:22.04
 
+SHELL ["/bin/bash", "-c"]
+
 # installer does not like being run from /
 WORKDIR "/root"
 
-SHELL ["/bin/bash", "-c"]
+# Ports: ???, http, https, ???, snmp, snmp
+# See https://dl4jz3rbrsfum.cloudfront.net/documents/CyberPower_UM_PowerPanel-Business-486.pdf
+EXPOSE 2003
+EXPOSE 3052
+EXPOSE 53568/tcp
+EXPOSE 53566/udp
+EXPOSE 161/udp
+EXPOSE 162/udp
+
+# set Apt package manager to non-interactive mode, avoids prompts
+ARG DEBIAN_FRONTEND=noninteractive  
+
+# define the terminal
+ENV TERM="xterm-256color"
 
 ENV POWERPANEL_VERSION=486
-ENV ENABLE_LOGGING=false
+ENV ENABLE_LOGGING=true
+
+### ENV FONTCONFIG_PATH="/etc/fonts"       # this seems to break things
+
+# set some environment variables for Bash
+RUN printf "\nexport TERM=xterm-256color\nexport FONTCONFIG_PATH=/etc/fonts\n" >> /root/.bashrc
+
+# Set the time zone
+ENV TZ="America/New_York"
+RUN ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
 
 # See https://www.ej-technologies.com/resources/install4j/help/doc/installers/responseFile.html
 # for definition of response files
 # trying new, seems to have worked?
 COPY response.varfile response.varfile
+
+# install some basic pre-reqs to avoid errors in future apt installations
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    tzdata \
+    apt-utils \
+    dialog
 
 # Package reasons:
 #   curl: to download installer
@@ -35,15 +65,6 @@ RUN apt-get update && \
     ./ppb-linux-x86_64.sh -q -varfile response.varfile && \
     rm ppb-linux-x86_64.sh && \
     rm response.varfile
-
-# Ports: ???, http, https, ???, snmp, snmp
-# See https://dl4jz3rbrsfum.cloudfront.net/documents/CyberPower_UM_PowerPanel-Business-486.pdf
-EXPOSE 2003
-EXPOSE 3052
-EXPOSE 53568/tcp
-EXPOSE 53566/udp
-EXPOSE 161/udp
-EXPOSE 162/udp
 
 # Bug: container will hang on start unless VOLUME is commented out
 # Info: There are many other folders under /usr/local/PPB that probably need to be on a VOLUME:

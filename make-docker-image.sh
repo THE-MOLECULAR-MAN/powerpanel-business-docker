@@ -24,6 +24,6 @@ echo "Building image..."
 sudo docker build -t tim-powerpanelbusiness-mgmt .
 
 echo "Running image as new container..."
-sudo docker run -p 8000:3052 --name tim-test -it tim-powerpanelbusiness-mgmt /bin/bash
+sudo docker run -p 127.0.0.1:8000:3052/tcp --name tim-test -it tim-powerpanelbusiness-mgmt # /bin/bash
 
 echo "make-docker-image.sh finished successfully"
