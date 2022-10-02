@@ -40,23 +40,21 @@ COPY response.varfile response.varfile
 # install some basic pre-reqs to avoid errors in future apt installations
 RUN apt-get update && apt-get install -y --no-install-recommends \
     tzdata \
-    apt-utils \
-    dialog
+    apt-utils=2.4.7 \
+    dialog=1.3-20211214-1
 
 # Package reasons:
 #   curl: to download installer
 #   ca-certificates: to make https work
 #   *usb*: to connect to UPSs over USB
-RUN apt-get update && \
-    apt-get install -y \
-        curl \
+RUN apt-get install -y --no-install-recommends \
+        curl=7.81.0-1ubuntu1.4 \
         ca-certificates \
-        libgusb2 \
-        libusb-0.1 \
-        libusb-1.0-0 \
-        usb.ids \
-        usbutils \
-        --no-install-recommends && \
+        libgusb2=0.3.10-1 \
+        libusb-0.1=2:0.1.12-32build3 \
+        libusb-1.0-0=2:1.0.25-1ubuntu2 \
+        usb.ids=2022.04.02-1 \
+        usbutils=1:014-1build1 && \
     rm -rf /var/lib/apt/lists/* && \
     curl -s -L 'https://dl4jz3rbrsfum.cloudfront.net/software/PPB_Linux%2064bit_v4.8.6.sh' -o ppb-linux-x86_64.sh && \
     # curl -s -L 'https://www.cyberpower.com/global/en/File/GetFileSampleByType?fileId=SU-20040001-06&fileType=Download%20Center&fileSubType=FileOriginal' -o ppb-linux-x86_64.sh && \
