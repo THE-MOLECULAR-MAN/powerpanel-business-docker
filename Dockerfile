@@ -3,13 +3,15 @@ FROM docker.io/library/ubuntu:22.04
 # installer does not like being run from /
 WORKDIR "/root"
 
-ENV POWERPANEL_VERSION=486
+SHELL ["/bin/bash", "-c"]
 
+ENV POWERPANEL_VERSION=486
 ENV ENABLE_LOGGING=false
 
 # See https://www.ej-technologies.com/resources/install4j/help/doc/installers/responseFile.html
 # for definition of response files
-COPY --from=copier response.varfile response.varfile
+# trying new, seems to have worked?
+COPY response.varfile response.varfile
 
 # Package reasons:
 #   curl: to download installer
@@ -27,6 +29,7 @@ RUN apt-get update && \
         --no-install-recommends && \
     rm -rf /var/lib/apt/lists/* && \
     curl -s -L 'https://dl4jz3rbrsfum.cloudfront.net/software/PPB_Linux%2064bit_v4.8.6.sh' -o ppb-linux-x86_64.sh && \
+    # curl -s -L 'https://www.cyberpower.com/global/en/File/GetFileSampleByType?fileId=SU-20040001-06&fileType=Download%20Center&fileSubType=FileOriginal' -o ppb-linux-x86_64.sh && \
     chmod +x ppb-linux-x86_64.sh && \
     # See https://www.ej-technologies.com/resources/install4j/help/doc/installers/options.html
     ./ppb-linux-x86_64.sh -q -varfile response.varfile && \
